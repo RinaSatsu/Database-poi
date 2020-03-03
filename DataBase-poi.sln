@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBase-poi", "DataBase-poi\DataBase-poi.csproj", "{6190B6E6-8749-49C8-BF5E-16B9FA1EFDDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBase-poi-MVVM", "DataBase-poi-MVVM\DataBase-poi-MVVM.csproj", "{32CB5327-61F4-4B78-BAE3-76E4E3C3D668}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6190B6E6-8749-49C8-BF5E-16B9FA1EFDDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6190B6E6-8749-49C8-BF5E-16B9FA1EFDDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6190B6E6-8749-49C8-BF5E-16B9FA1EFDDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6190B6E6-8749-49C8-BF5E-16B9FA1EFDDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32CB5327-61F4-4B78-BAE3-76E4E3C3D668}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32CB5327-61F4-4B78-BAE3-76E4E3C3D668}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32CB5327-61F4-4B78-BAE3-76E4E3C3D668}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32CB5327-61F4-4B78-BAE3-76E4E3C3D668}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {04B3823D-B015-4CAD-BFFD-6A92BD2D67C3}
+	EndGlobalSection
+EndGlobal
