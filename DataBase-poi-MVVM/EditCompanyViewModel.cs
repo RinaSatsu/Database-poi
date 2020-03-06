@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DataBase_poi_MVVM
 {
@@ -12,16 +13,18 @@ namespace DataBase_poi_MVVM
     {
         #region Fields
 
-        CompanyModel _model = new CompanyModel();
+        CompanyModel _model;
 
-        private readonly Action<string> _errorMessage;
+        private readonly Func<string, MessageBoxResult> _errorMessage;
 
         private int? _departmentSelectedValue;
         private int? _employeeSelectedValue;
-
         private Employee _employeeData;
 
         private Command _addDepartmentCommand;
+        private Command _addEmployeeCommand;
+        private Command _editEmployeeCommand;
+        private Command _deleteEmployeeCommand;
 
         #endregion
 
@@ -51,7 +54,10 @@ namespace DataBase_poi_MVVM
             {
                 _employeeSelectedValue = value;
                 if (value == null)
+                {
+                    SelectedEmployeeData = null;
                     return;
+                }
                 SelectedEmployeeData = _model.GetEmployee("Employees", (int)_employeeSelectedValue);
                 OnPropertyChanged("SelectedEmployee");
             }
@@ -72,7 +78,12 @@ namespace DataBase_poi_MVVM
 
         public EditCompanyViewModel()
         {
-            
+        }
+
+        public EditCompanyViewModel(Func<string, MessageBoxResult> errorMessage, CompanyModel model)
+        {
+            _errorMessage = errorMessage;
+            _model = model;
         }
 
 
@@ -83,13 +94,27 @@ namespace DataBase_poi_MVVM
             get { return _addDepartmentCommand ?? (_addDepartmentCommand = new Command(AddDepartment)); }
         }
 
+        public Command AddEmployeeCommand
+        {
+            get { return _addEmployeeCommand ?? (_addEmployeeCommand = new Command(AddEmployee)); }
+        }
+
+        public Command EditEmployeeCommand
+        {
+            get { return _editEmployeeCommand ?? (_editEmployeeCommand = new Command(EditEmployee)); }
+        }
+
+        public Command DeleteEmployeeCommand
+        {
+            get { return _deleteEmployeeCommand ?? (_deleteEmployeeCommand = new Command(DeleteEmployee)); }
+        }
 
         #endregion
 
 
         #region Methods
 
-        public void AddDepartment(object departmentName)
+        private void AddDepartment(object departmentName)
         {
             try
             {
@@ -97,52 +122,104 @@ namespace DataBase_poi_MVVM
             }
             catch (ArgumentException)
             {
+                //MessageBox.Show("Invalid department Id");
                 _errorMessage("Invalid department Id");
             }
             catch (Exception ex)
             {
+                //MessageBox.Show(ex.Message);
                 _errorMessage(ex.Message);
             }
         }
 
-        public void AddEmployee(object employee)
+        private void AddEmployee(object employee)
         {
             if (SelectedDepartment == null) return;
-            Employee empl = _model.GetEmployee("Employees", (int)SelectedEmployee);
-            //if ((EmployeeName_textBox.Text == companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]["Name"].ToString()) &&
-            //    (EmployeeAge_textBox.Text == companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]["Age"].ToString()) &&
-            //    (EmployeeSalary_textBox.Text == companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]["Salary"].ToString())) return;
             try
             {
-                //    DataRow newRow;
-                //    int departmentId = Convert.ToInt32(Departments_comboBox.SelectedValue);
-                //    int departmentCode = Convert.ToInt32((from dep in companyDataSet.Tables["Departments"].AsEnumerable()
-                //                                          where dep.Field<Int32>("Id") == Convert.ToInt32(Departments_comboBox.SelectedValue)
-                //                                          select dep["Code"]).First());
-                //    if ((EmployeeName_textBox.Text == "") || (EmployeeAge_textBox.Text == "") || (EmployeeSalary_textBox.Text == ""))
-                //        newRow = AddEmployee(departmentId, departmentCode);
-                //    else
-                //        newRow = AddEmployee(EmployeeName_textBox.Text, int.Parse(EmployeeAge_textBox.Text), double.Parse(EmployeeSalary_textBox.Text), departmentId, departmentCode);
-
-                //    companyDataSet.Tables["Employees"].Rows.Add(newRow);
-                //    employeeAdapter.Update(companyDataSet, "Employees");
-
+                Employee newEmpl;
+                if (SelectedEmployee == null)
+                {
+                    newEmpl = new Employee();
+                }
+                else
+                {
+                    Employee empl = _model.GetEmployee("Employees", (int)SelectedEmployee);
+                    if ((empl.Name == SelectedEmployeeData.Name) && (empl.Age == SelectedEmployeeData.Age) && (empl.Salary == SelectedEmployeeData.Salary)) return;
+                    newEmpl = new Employee("0", SelectedEmployeeData.Name, SelectedEmployeeData.Age, SelectedEmployeeData.Salary);
+                }
+                int age;
+                double salary;
+                int.TryParse(newEmpl.Age, out age);
+                double.TryParse(newEmpl.Salary, out salary);
+                _model.AddEmployee("Employees", newEmpl.Name, age, salary, (int)SelectedDepartment);
             }
             catch (ArgumentOutOfRangeException)
             {
+                //MessageBox.Show("Invalid department Id");
                 _errorMessage("Invalid department Id");
             }
             catch (Exception ex)
             {
+                //MessageBox.Show(ex.Message);
                 _errorMessage(ex.Message);
             }
-            //finally
-            //{
-            //    EmployeeCode_textBlock.Text = "";
-            //    EmployeeName_textBox.Text = "";
-            //    EmployeeAge_textBox.Text = "";
-            //    EmployeeSalary_textBox.Text = "";
-            //}
+            finally
+            {
+                SelectedEmployee = null;
+            }
+        }
+
+        private void EditEmployee(object index)
+        {
+            if (SelectedDepartment == null || SelectedEmployee == null || (int)index == -1) return;
+            try
+            {
+                if ((SelectedEmployeeData.Name == "") || (SelectedEmployeeData.Age == "") || (SelectedEmployeeData.Salary == ""))
+                    throw new Exception();
+                int age;
+                double salary;
+                int.TryParse(SelectedEmployeeData.Age, out age);
+                double.TryParse(SelectedEmployeeData.Salary, out salary);
+                _model.EditEmployee("Employees", (int)index, SelectedEmployeeData.Name, age, salary);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                //MessageBox.Show("Invalid department Id");
+                _errorMessage("Invalid department Id");
+            }
+            catch (Exception)
+            {
+                //MessageBox.Show("Invalid employee data");
+                _errorMessage("Invalid employee data");
+            }
+            finally
+            {
+                SelectedEmployee = null;
+            }
+        }
+
+        private void DeleteEmployee(object index)
+        {
+            if (SelectedDepartment == null || SelectedEmployee == null || (int)index == -1) return;
+            try
+            {
+                _model.DeleteEmployee("Employees", (int)index);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                //MessageBox.Show("Invalid department Id");
+                _errorMessage("Invalid department Id");
+            }
+            catch (Exception)
+            {
+                //MessageBox.Show("Invalid employee data");
+                _errorMessage("Invalid employee data");
+            }
+            finally
+            {
+                SelectedEmployee = null;
+            }
         }
 
         #endregion

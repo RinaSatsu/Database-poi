@@ -65,20 +65,6 @@ namespace DataBase_poi_MVVM
             _employeeAdapter.Fill(dataSet, tableName);
         }
 
-        public void FillEmployeeTable(DataTable dt, int departmentId)
-        {
-            _employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {departmentId};";
-            //employeeAdapter.SelectCommand.Parameters.Clear();
-
-            //SqlParameter param = new SqlParameter("@DepartmentId", SqlDbType.Int, -1);
-            //param.Value = Departments_comboBox.SelectedValue;
-            //employeeAdapter.SelectCommand.Parameters.Add(param);
-
-            //employeeAdapter.SelectCommand.Parameters.AddWithValue("@DepartmentId", Departments_comboBox.SelectedValue);
-            _employeeAdapter.Fill(dt);
-        }
-
-
         /// <summary>
         /// Приводит базу данных департаментов в соответствие с DataSet
         /// </summary>
@@ -99,6 +85,28 @@ namespace DataBase_poi_MVVM
         }
 
         /// <summary>
+        /// Меняет код и департамент в базе данных у выбранного сотрудника
+        /// </summary>
+        /// <param name="dataSet">Исходный DataSet</param>
+        /// <param name="tableName">Таблица сотрудников в DataSe</param>
+        /// <param name="index">Индекс сотрудника в таблице</param>
+        public void ChangeDepartment(DataSet dataSet, string tableName, int index)
+        {
+            using (SqlConnection tempConnection = new SqlConnection(connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand(@"UPDATE [Employees] SET [Code] = @Code, [Department] = @Department WHERE [Id] = @Id", tempConnection))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.AddWithValue("@Code", dataSet.Tables[tableName].Rows[index].Field<Int32>("Code"));
+                    cmd.Parameters.AddWithValue("@Department", dataSet.Tables[tableName].Rows[index].Field<Int32>("Department"));
+                    cmd.Parameters.AddWithValue("@Id", dataSet.Tables[tableName].Rows[index].Field<Int32>("Id"));
+                    tempConnection.Open();
+                    int n = cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        /// <summary>
         /// Удаляет сотрудника из базы данных
         /// </summary>
         /// <param name="dataSet">Исходный DataSet</param>
@@ -106,13 +114,13 @@ namespace DataBase_poi_MVVM
         /// <param name="index">Индекс сотрудника в таблице</param>
         public void DeleteEmployee(DataSet dataSet, string tableName, int index)
         {
-            using (connection)
+            using (SqlConnection tempConnection = new SqlConnection(connectionString))
             {
-                using (SqlCommand cmd = new SqlCommand("DELETE FROM Employees WHERE Id = @Id", connection))
+                using (SqlCommand cmd = new SqlCommand("DELETE FROM Employees WHERE Id = @Id", tempConnection))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.AddWithValue("@Id", dataSet.Tables[tableName].Rows[index].Field<Int32>("Id"));
-                    connection.Open();
+                    tempConnection.Open();
                     int n = cmd.ExecuteNonQuery();
                 }
             }

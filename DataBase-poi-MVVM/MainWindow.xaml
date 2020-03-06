@@ -8,11 +8,11 @@
         Title="Компания" Height="480" Width="680">
 
     <Grid>
-        <TabControl HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" >
-            <TabItem Header="Просмотр/Изменение">
-                <TabItem.DataContext>
+        <TabControl HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch">
+            <TabItem x:Name="Edit_tabItem" Header="Просмотр/Изменение" DataContext="{Binding}">
+                <!--<TabItem.DataContext>
                     <local:EditCompanyViewModel/>
-                </TabItem.DataContext>
+                </TabItem.DataContext>-->
                 <Grid Background="White">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3*"/>
@@ -43,11 +43,10 @@
                               Grid.Row="0" 
                               HorizontalAlignment="Stretch" 
                               VerticalAlignment="Top"
-                              ItemsSource="{Binding DepartmentsDataTable}"    
+                              ItemsSource="{Binding DepartmentsDataTable, UpdateSourceTrigger=PropertyChanged}"    
                               DisplayMemberPath = "Name"
                               SelectedValuePath = "Id"
                               SelectedValue="{Binding SelectedDepartment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-
                     <TextBlock
                              Margin="20,5,25,0"
                              Grid.Column="0"
@@ -68,7 +67,6 @@
                              ItemsSource="{Binding EmployeesDataTable}"
                              SelectedValuePath = "Id"
                              SelectedValue="{Binding SelectedEmployee, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Код" Width="40" DisplayMemberBinding="{Binding Code}"/>
@@ -103,7 +101,9 @@
                              Height="20"
                              Width="100"
                              HorizontalAlignment="Right"   
-                             VerticalAlignment="Top">
+                             VerticalAlignment="Top"
+                             Command="{Binding AddDepartmentCommand}"
+                             CommandParameter="{Binding ElementName=Department_textBox, Path=Text}">
                         Добавить
                     </Button>
                     <TextBlock
@@ -143,7 +143,8 @@
                              Height="20"
                              HorizontalAlignment="Stretch"   
                              VerticalAlignment="Top"
-                             TextWrapping="Wrap" Text="{Binding SelectedEmployeeData.Name, UpdateSourceTrigger=PropertyChanged}"                            
+                             TextWrapping="Wrap" 
+                             Text="{Binding SelectedEmployeeData.Name, UpdateSourceTrigger=PropertyChanged}"                            
                              />
                     <TextBlock
                              Margin="20,5,25,0"
@@ -194,7 +195,9 @@
                              Height="20"
                              Width="100"
                              HorizontalAlignment="Right"   
-                             VerticalAlignment="Center">
+                             VerticalAlignment="Center"
+                             Command="{Binding AddEmployeeCommand}"
+                             CommandParameter="">
                         Доб. сотрудника
                     </Button>
                     <Button x:Name="EditEmployee_button"
@@ -204,7 +207,9 @@
                              Height="20"
                              Width="100"
                              HorizontalAlignment="Right"   
-                             VerticalAlignment="Center">
+                             VerticalAlignment="Center"
+                             Command="{Binding EditEmployeeCommand}"
+                             CommandParameter="{Binding ElementName=Employees_listView, Path=SelectedIndex}">
                         Изм. сотрудника
                     </Button>
                     <Button x:Name="DeleteEmployee_button"
@@ -214,12 +219,17 @@
                              Height="20"
                              Width="100"
                              HorizontalAlignment="Right"   
-                             VerticalAlignment="Center">
+                             VerticalAlignment="Center"
+                             Command="{Binding DeleteEmployeeCommand}"
+                             CommandParameter="{Binding ElementName=Employees_listView, Path=SelectedIndex}">
                         Удал. сотрудника
                     </Button>
                 </Grid>
             </TabItem>
-            <TabItem Header="Перемещение">
+            <TabItem x:Name="Move_tabItem" Header="Перемещение">
+                <!--<TabItem.DataContext>
+                    <local:MoveEmployeeViewModel/>
+                </TabItem.DataContext>-->
                 <Grid Background="White">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
@@ -248,8 +258,10 @@
                               Grid.Row="0" 
                               HorizontalAlignment="Stretch" 
                               VerticalAlignment="Top"
+                              ItemsSource="{Binding DepartmentsDataTable}"    
                               DisplayMemberPath = "Name"
-                              SelectedValuePath = "Id"/>
+                              SelectedValuePath = "Id"
+                              SelectedValue="{Binding SelectedDepartment1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock
                              Margin="20,5,25,0"
                              Grid.Column="0"
@@ -267,7 +279,9 @@
                              Grid.RowSpan="2"
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Stretch"
-                             SelectedValuePath = "Id">
+                             ItemsSource="{Binding EmployeesMove1DataTable}"
+                             SelectedValuePath = "Id"
+                             SelectedIndex="{Binding SelectedEmployeeIndex1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Код" Width="40" DisplayMemberBinding="{Binding Code}"/>
@@ -293,8 +307,10 @@
                               Grid.Row="0" 
                               HorizontalAlignment="Stretch" 
                               VerticalAlignment="Top"
+                              ItemsSource="{Binding DepartmentsDataTable}"    
                               DisplayMemberPath = "Name"
-                              SelectedValuePath = "Id"/>
+                              SelectedValuePath = "Id"
+                              SelectedValue="{Binding SelectedDepartment2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock
                              Margin="20,5,25,0"
                              Grid.Column="2"
@@ -312,7 +328,9 @@
                              Grid.RowSpan="2"
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Stretch"
-                             SelectedValuePath = "Id">
+                             ItemsSource="{Binding EmployeesMove2DataTable}"
+                             SelectedValuePath = "Id"
+                             SelectedIndex="{Binding SelectedEmployeeIndex2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Код" Width="40" DisplayMemberBinding="{Binding Code}"/>
@@ -327,7 +345,9 @@
                             Grid.Column="1" 
                             Grid.Row="1" 
                             HorizontalAlignment="Stretch" 
-                            VerticalAlignment="Bottom">
+                            VerticalAlignment="Bottom"
+                            Command="{Binding MoveToCommand}"
+                            CommandParameter="{Binding ElementName=EmployeesMove1_listView, Path=SelectedIndex}">
                         Переместить -&gt;
                     </Button>
                     <Button x:Name="MoveBack_button" 
@@ -335,7 +355,9 @@
                             Grid.Column="1" 
                             Grid.Row="2"
                             HorizontalAlignment="Stretch" 
-                            VerticalAlignment="Top">
+                            VerticalAlignment="Top"
+                            Command="{Binding MoveBackCommand}"
+                            CommandParameter="{Binding ElementName=EmployeesMove2_listView, Path=SelectedIndex}">
                         &lt;- Убрать
                     </Button>
                 </Grid>

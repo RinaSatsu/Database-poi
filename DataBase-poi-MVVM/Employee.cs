@@ -9,12 +9,16 @@ namespace DataBase_poi_MVVM
 {
     public class Employee : INotifyPropertyChanged
     {
-        private int _code;
+        //private int _code;
+        private string _code;
         private string _name;
-        private int _age;
-        private double _salary;
+        //private int _age;
+        private string _age;
+        //private double _salary;
+        private string _salary;
 
-        public int Code
+        //public int Code
+        public string Code
         {
             get { return _code; }
             set
@@ -34,7 +38,8 @@ namespace DataBase_poi_MVVM
             }
         }
 
-        public int Age
+        //public int Age
+        public string Age
         {
             get { return _age; }
             set
@@ -44,7 +49,8 @@ namespace DataBase_poi_MVVM
             }
         }
 
-        public double Salary
+        //public double Salary
+        public string Salary
         {
             get { return _salary; }
             set
@@ -52,6 +58,14 @@ namespace DataBase_poi_MVVM
                 _salary = value;
                 OnPropertyChanged("Salary");
             }
+        }
+
+        public Employee()
+        {
+            _code = "0";
+            _name = "";
+            _age = "0";
+            _salary = "0";
         }
 
         public Employee(Employee employee)
@@ -62,7 +76,8 @@ namespace DataBase_poi_MVVM
             _salary = employee.Salary;
         }
 
-        public Employee(int code, string name, int age, double salary)
+        //public Employee(int code, string name, int age, double salary)
+        public Employee(string code, string name, string age, string salary)
         {
             _code = code;
             _name = name;

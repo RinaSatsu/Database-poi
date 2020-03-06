@@ -23,6 +23,9 @@ namespace DataBase_poi_MVVM
         public MainWindow()
         {
             InitializeComponent();
+            CompanyModel model = new CompanyModel();
+            Edit_tabItem.DataContext = new EditCompanyViewModel(MessageBox.Show, model);
+            Move_tabItem.DataContext = new MoveEmployeeViewModel(MessageBox.Show, model);
         }
     }
 }

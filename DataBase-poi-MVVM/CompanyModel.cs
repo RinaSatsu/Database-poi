@@ -15,7 +15,7 @@ namespace DataBase_poi_MVVM
 
         private DataSet _companyDataSet;
         private DBService _dataBase = new DBService();
-
+        private Dictionary<string, int> _selectedDepartments = new Dictionary<string, int>();
 
         #endregion
 
@@ -34,8 +34,11 @@ namespace DataBase_poi_MVVM
             _dataBase.FillDepartmentTable(_companyDataSet);
 
             _companyDataSet.Tables.Add("Employees");
+            _selectedDepartments.Add("Employees", 0);
             _companyDataSet.Tables.Add("EmployeesMove1");
+            _selectedDepartments.Add("EmployeesMove1", 0);
             _companyDataSet.Tables.Add("EmployeesMove2");
+            _selectedDepartments.Add("EmployeesMove2", 0);
         }
 
 
@@ -53,6 +56,7 @@ namespace DataBase_poi_MVVM
 
             _companyDataSet.Tables[tableName].Rows.Clear();
             _dataBase.FillEmployeeTable(_companyDataSet, tableName, departmentId);
+            _selectedDepartments[tableName] = departmentId;
         }
 
         /// <summary>
@@ -69,7 +73,7 @@ namespace DataBase_poi_MVVM
             var employeeData = (from emp in _companyDataSet.Tables[tableName].AsEnumerable()
                                 where emp.Field<Int32>("Id") == employeeId
                                 select new { Code = emp["Code"], Name = emp["Name"], Age = emp["Age"], Salary = emp["Salary"] }).First();
-            return new Employee(Convert.ToInt32(employeeData.Code), employeeData.Name.ToString(), Convert.ToInt32(employeeData.Age), Convert.ToDouble(employeeData.Salary));
+            return new Employee(employeeData.Code.ToString(), employeeData.Name.ToString(), employeeData.Age.ToString(), employeeData.Salary.ToString());
         }
 
         /// <summary>
@@ -103,6 +107,7 @@ namespace DataBase_poi_MVVM
 
             _companyDataSet.Tables[tableName].Rows.Add(employeeData);
             _dataBase.UpdateEmployeesTable(_companyDataSet, tableName);
+            UpdateModel(tableName);
         }
 
         /// <summary>
@@ -121,6 +126,9 @@ namespace DataBase_poi_MVVM
             _companyDataSet.Tables[tableName].Rows[index]["Name"] = name;
             _companyDataSet.Tables[tableName].Rows[index]["Age"] = age;
             _companyDataSet.Tables[tableName].Rows[index]["Salary"] = salary;
+
+            _dataBase.UpdateEmployeesTable(_companyDataSet, tableName);
+            UpdateModel(tableName);
         }
 
         /// <summary>
@@ -135,6 +143,7 @@ namespace DataBase_poi_MVVM
 
             _dataBase.DeleteEmployee(_companyDataSet, tableName, index);
             _companyDataSet.Tables[tableName].Rows.RemoveAt(index);
+            UpdateModel(tableName);
         }
 
         /// <summary>
@@ -151,17 +160,35 @@ namespace DataBase_poi_MVVM
                                                   select dep["Code"]).First());
             ChangeDepartment(_companyDataSet.Tables[fromTableName].Rows[employeeIndex], toTableName, toDepartmentId, toDepartmentCode);
 
-            _dataBase.UpdateEmployeesTable(_companyDataSet, fromTableName);
+            _dataBase.ChangeDepartment(_companyDataSet, fromTableName, employeeIndex);
 
             DataRow newRow = _companyDataSet.Tables[fromTableName].Rows[employeeIndex];
             _companyDataSet.Tables[toTableName].Rows.Add(newRow.ItemArray);
             _companyDataSet.Tables[fromTableName].Rows.Remove(newRow);
+            UpdateModel(fromTableName);
+            UpdateModel(toTableName);
         }
 
         #endregion
 
 
         #region Private_Methods
+
+        /// <summary>
+        /// Приводит таблицы в DataSet в соответствие с измененной таблицей
+        /// </summary>
+        /// <param name="updatedTable">Имя измененной таблицы</param>
+        private void UpdateModel(string updatedTable)
+        {
+            foreach (var table in _selectedDepartments)
+            {
+                if ((table.Key != updatedTable) && (table.Value == _selectedDepartments[updatedTable]))
+                {
+                    _companyDataSet.Tables[table.Key].Clear();
+                    _companyDataSet.Tables[table.Key].Merge(_companyDataSet.Tables[updatedTable]);
+                }
+            }
+        }
 
         /// <summary>
         /// Создает департамент с заданным именем, или генерирует, если имя не задано
