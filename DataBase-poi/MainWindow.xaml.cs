@@ -10,9 +10,6 @@ using System.Windows.Controls;
 
 namespace DataBase_poi
 {
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         #region Fields
@@ -32,54 +29,50 @@ namespace DataBase_poi
             InitializeComponent();
         }
 
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textBox = sender as TextBox;
-            textBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-        }
-
         private void MainWind_Loaded(object sender, RoutedEventArgs e)
         {
+            connection = new SqlConnection(connectionString);
 
-            //connection = new SqlConnection(connectionString);
+            companyDataSet = new DataSet("CompanyEdit");
 
-            //companyDataSet = new DataSet("CompanyEdit");
+            departmentAdapter = new SqlDataAdapter("SELECT * FROM Departments;", connection);
+            InsertDepartmentAdapter(connection, departmentAdapter);
+            departmentAdapter.Fill(companyDataSet, "Departments");
 
-            //departmentAdapter = new SqlDataAdapter("SELECT * FROM Departments;", connection);
-            //InsertDepartmentAdapter(connection, departmentAdapter);
-            //departmentAdapter.Fill(companyDataSet, "Departments");
+            employeeAdapter = new SqlDataAdapter($"SELECT * FROM Employees WHERE Department = @DeparmentId;", connection);
+            InsertEmployeeAdapter(connection, employeeAdapter);
+            UpdateEmployeeAdapter(connection, employeeAdapter);
+            companyDataSet.Tables.Add("Employees");
+            companyDataSet.Tables.Add("EmployeesMove1");
+            companyDataSet.Tables.Add("EmployeesMove2");
 
-            //employeeAdapter = new SqlDataAdapter($"SELECT * FROM Employees WHERE Department = @DeparmentId;", connection);
-            //InsertEmployeeAdapter(connection, employeeAdapter);
-            //UpdateEmployeeAdapter(connection, employeeAdapter);
-            //companyDataSet.Tables.Add("Employees");
-            //companyDataSet.Tables.Add("EmployeesMove1");
-            //companyDataSet.Tables.Add("EmployeesMove2");
+            Departments_comboBox.ItemsSource = companyDataSet.Tables["Departments"].DefaultView;
+            DepartmentsMove1_comboBox.ItemsSource = companyDataSet.Tables["Departments"].DefaultView;
+            DepartmentsMove2_comboBox.ItemsSource = companyDataSet.Tables["Departments"].DefaultView;
 
-            //Departments_comboBox.ItemsSource = companyDataSet.Tables["Departments"].DefaultView;
-            //DepartmentsMove1_comboBox.ItemsSource = companyDataSet.Tables["Departments"].DefaultView;
-            //DepartmentsMove2_comboBox.ItemsSource = companyDataSet.Tables["Departments"].DefaultView;
+            Employees_listView.ItemsSource = companyDataSet.Tables["Employees"].DefaultView;
+            EmployeesMove1_listView.ItemsSource = companyDataSet.Tables["EmployeesMove1"].DefaultView;
+            EmployeesMove2_listView.ItemsSource = companyDataSet.Tables["EmployeesMove2"].DefaultView;
         }
 
 
-    #region ViewEditTab
+        #region ViewEditTab
 
-    #region View
+        #region View
 
-    private void Departments_comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void Departments_comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //companyDataSet.Tables["Employees"].Rows.Clear();
+            companyDataSet.Tables["Employees"].Rows.Clear();
 
-            //employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {Departments_comboBox.SelectedValue};";
-            ////employeeAdapter.SelectCommand.Parameters.Clear();
+            employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {Departments_comboBox.SelectedValue};";
+            //employeeAdapter.SelectCommand.Parameters.Clear();
 
-            ////SqlParameter param = new SqlParameter("@DepartmentId", SqlDbType.Int, -1);
-            ////param.Value = Departments_comboBox.SelectedValue;
-            ////employeeAdapter.SelectCommand.Parameters.Add(param);
+            //SqlParameter param = new SqlParameter("@DepartmentId", SqlDbType.Int, -1);
+            //param.Value = Departments_comboBox.SelectedValue;
+            //employeeAdapter.SelectCommand.Parameters.Add(param);
 
-            ////employeeAdapter.SelectCommand.Parameters.AddWithValue("@DepartmentId", Departments_comboBox.SelectedValue);
-            //employeeAdapter.Fill(companyDataSet, "Employees");
-            //Employees_listView.ItemsSource = companyDataSet.Tables["Employees"].DefaultView;
+            //employeeAdapter.SelectCommand.Parameters.AddWithValue("@DepartmentId", Departments_comboBox.SelectedValue);
+            employeeAdapter.Fill(companyDataSet, "Employees");
         }
 
         #endregion
@@ -89,70 +82,82 @@ namespace DataBase_poi
 
         private void AddDepartment_button_Click(object sender, RoutedEventArgs e)
         {
-            
-            //try
-            //{
-            //    DataRow newRow;
-            //    if (Department_textBox.Text == "")
-            //        newRow = AddDepartment();
-            //    else
-            //        newRow = AddDepartment(Department_textBox.Text);
-            //    companyDataSet.Tables["Departments"].Rows.Add(newRow);
-            //    departmentAdapter.Update(companyDataSet, "Departments");
-            //}
-            //catch (ArgumentException)
-            //{
-            //    MessageBox.Show("Invalid department Id");
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show(ex.Message);
-            //}
+
+            try
+            {
+                DataRow newRow;
+                if (Department_textBox.Text == "")
+                    newRow = AddDepartment();
+                else
+                    newRow = AddDepartment(Department_textBox.Text);
+                companyDataSet.Tables["Departments"].Rows.Add(newRow);
+                departmentAdapter.Update(companyDataSet, "Departments");
+            }
+            catch (ArgumentException)
+            {
+                MessageBox.Show("Invalid department Id");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void AddEmployee_button_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(EmployeeName_textBox.Text);
-            //if (Departments_comboBox.SelectedValue == null) return;
-            //if ((EmployeeName_textBox.Text == companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]["Name"].ToString()) && 
-            //    (EmployeeAge_textBox.Text == companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]["Age"].ToString()) && 
-            //    (EmployeeSalary_textBox.Text == companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]["Salary"].ToString())) return;
-            //try
-            //{
-            //    DataRow newRow;
-            //    int departmentId = Convert.ToInt32(Departments_comboBox.SelectedValue);
-            //    int departmentCode = Convert.ToInt32((from dep in companyDataSet.Tables["Departments"].AsEnumerable()
-            //                  where dep.Field<Int32>("Id") == Convert.ToInt32(Departments_comboBox.SelectedValue)
-            //                  select dep["Code"]).First());
-            //    if ((EmployeeName_textBox.Text == "") || (EmployeeAge_textBox.Text == "") || (EmployeeSalary_textBox.Text == ""))
-            //        newRow = AddEmployee(departmentId, departmentCode);
-            //    else
-            //        newRow = AddEmployee(EmployeeName_textBox.Text, int.Parse(EmployeeAge_textBox.Text), double.Parse(EmployeeSalary_textBox.Text), departmentId, departmentCode);
+            if (Departments_comboBox.SelectedValue == null) return;
+            if (Employees_listView.SelectedIndex != -1)
+            {
+                if ((EmployeeName_textBox.Text == companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]["Name"].ToString()) &&
+                (EmployeeAge_textBox.Text == companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]["Age"].ToString()) &&
+                (EmployeeSalary_textBox.Text == companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]["Salary"].ToString())) return;
+            }
+            
+            try
+            {
+                DataRow newRow;
+                int departmentId = Convert.ToInt32(Departments_comboBox.SelectedValue);
+                int departmentCode = Convert.ToInt32((from dep in companyDataSet.Tables["Departments"].AsEnumerable()
+                                                      where dep.Field<Int32>("Id") == Convert.ToInt32(Departments_comboBox.SelectedValue)
+                                                      select dep["Code"]).First());
+                if ((EmployeeName_textBox.Text == "") || (EmployeeAge_textBox.Text == "") || (EmployeeSalary_textBox.Text == ""))
+                    newRow = AddEmployee(departmentId, departmentCode);
+                else
+                    newRow = AddEmployee(EmployeeName_textBox.Text, int.Parse(EmployeeAge_textBox.Text), double.Parse(EmployeeSalary_textBox.Text), departmentId, departmentCode);
 
-            //    companyDataSet.Tables["Employees"].Rows.Add(newRow);
-            //    employeeAdapter.Update(companyDataSet, "Employees");
-
-            //}
-            //catch (ArgumentOutOfRangeException)
-            //{
-            //    MessageBox.Show("Invalid department Id");
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show(ex.Message);
-            //}
-            //finally
-            //{
-            //    EmployeeCode_textBlock.Text = "";
-            //    EmployeeName_textBox.Text = "";
-            //    EmployeeAge_textBox.Text = "";
-            //    EmployeeSalary_textBox.Text = "";
-            //}
+                companyDataSet.Tables["Employees"].Rows.Add(newRow);
+                employeeAdapter.Update(companyDataSet, "Employees");
+                if (Departments_comboBox.SelectedIndex == DepartmentsMove1_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {DepartmentsMove1_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "EmployeesMove1");
+                }
+                if (Departments_comboBox.SelectedIndex == DepartmentsMove2_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {DepartmentsMove2_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "EmployeesMove2");
+                }
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                MessageBox.Show("Invalid department Id");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                EmployeeCode_textBlock.Text = "";
+                EmployeeName_textBox.Text = "";
+                EmployeeAge_textBox.Text = "";
+                EmployeeSalary_textBox.Text = "";
+            }
         }
 
         private void EditEmployee_button_Click(object sender, RoutedEventArgs e)
         {
-            if (Departments_comboBox.SelectedValue == null) return;
+            if (Departments_comboBox.SelectedValue == null || Employees_listView.SelectedIndex == -1) return;
             try
             {
                 if ((EmployeeName_textBox.Text == "") || (EmployeeAge_textBox.Text == "") || (EmployeeSalary_textBox.Text == ""))
@@ -162,6 +167,16 @@ namespace DataBase_poi
                                 Convert.ToInt32(EmployeeAge_textBox.Text),
                                 Convert.ToInt32(EmployeeSalary_textBox.Text));
                 employeeAdapter.Update(companyDataSet, "Employees");
+                if (Departments_comboBox.SelectedIndex == DepartmentsMove1_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {DepartmentsMove1_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "EmployeesMove1");
+                }
+                if (Departments_comboBox.SelectedIndex == DepartmentsMove2_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {DepartmentsMove2_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "EmployeesMove2");
+                }
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -182,7 +197,7 @@ namespace DataBase_poi
 
         private void DeleteEmployee_button_Click(object sender, RoutedEventArgs e)
         {
-            if (Departments_comboBox.SelectedValue == null) return;
+            if (Departments_comboBox.SelectedValue == null || Employees_listView.SelectedIndex == -1) return;
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
@@ -197,6 +212,16 @@ namespace DataBase_poi
                     }
                 }
                 companyDataSet.Tables["Employees"].Rows.Remove(companyDataSet.Tables["Employees"].Rows[Employees_listView.SelectedIndex]);
+                if (Departments_comboBox.SelectedIndex == DepartmentsMove1_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {DepartmentsMove1_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "EmployeesMove1");
+                }
+                if (Departments_comboBox.SelectedIndex == DepartmentsMove2_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {DepartmentsMove2_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "EmployeesMove2");
+                }
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -231,7 +256,6 @@ namespace DataBase_poi
 
             employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {DepartmentsMove1_comboBox.SelectedValue};";
             employeeAdapter.Fill(companyDataSet, "EmployeesMove1");
-            EmployeesMove1_listView.ItemsSource = companyDataSet.Tables["EmployeesMove1"].DefaultView;
         }
 
         private void DepartmentsMove2_comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -239,7 +263,6 @@ namespace DataBase_poi
             companyDataSet.Tables["EmployeesMove2"].Rows.Clear();
             employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {DepartmentsMove2_comboBox.SelectedValue};";
             employeeAdapter.Fill(companyDataSet, "EmployeesMove2");
-            EmployeesMove2_listView.ItemsSource = companyDataSet.Tables["EmployeesMove2"].DefaultView;
         }
 
         #endregion
@@ -263,6 +286,16 @@ namespace DataBase_poi
                 DataRow newRow = companyDataSet.Tables["EmployeesMove1"].Rows[EmployeesMove1_listView.SelectedIndex];
                 companyDataSet.Tables["EmployeesMove2"].Rows.Add(newRow.ItemArray);
                 companyDataSet.Tables["EmployeesMove1"].Rows.Remove(newRow);
+                if (DepartmentsMove1_comboBox.SelectedIndex == Departments_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {Departments_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "Employees");
+                }
+                if (DepartmentsMove2_comboBox.SelectedIndex == Departments_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {Departments_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "Employees");
+                }
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -300,6 +333,16 @@ namespace DataBase_poi
                 DataRow newRow = companyDataSet.Tables["EmployeesMove2"].Rows[EmployeesMove2_listView.SelectedIndex];
                 companyDataSet.Tables["EmployeesMove1"].Rows.Add(newRow.ItemArray);
                 companyDataSet.Tables["EmployeesMove2"].Rows.Remove(newRow);
+                if (DepartmentsMove1_comboBox.SelectedIndex == Departments_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {Departments_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "Employees");
+                }
+                if (DepartmentsMove2_comboBox.SelectedIndex == Departments_comboBox.SelectedIndex)
+                {
+                    employeeAdapter.SelectCommand.CommandText = $"SELECT * FROM Employees WHERE Department = {Departments_comboBox.SelectedValue};";
+                    employeeAdapter.Fill(companyDataSet, "Employees");
+                }
             }
             catch (ArgumentOutOfRangeException)
             {

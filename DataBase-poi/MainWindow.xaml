@@ -41,11 +41,9 @@
                               Grid.Column="0" 
                               Grid.Row="0" 
                               HorizontalAlignment="Stretch" 
-                              VerticalAlignment="Top"
-                              ItemsSource="{Binding DepartmentsDataTable}"    
+                              VerticalAlignment="Top"  
                               DisplayMemberPath = "Name"
                               SelectedValuePath = "Id"
-                              SelectedValue="{Binding SelectedDepartment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               SelectionChanged="Departments_comboBox_SelectionChanged"/>
                     <TextBlock
                              Margin="20,5,25,0"
@@ -64,10 +62,7 @@
                              Grid.RowSpan="5"
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Stretch"
-                             ItemsSource="{Binding EmployeesDataTable}"
-                             SelectedValuePath = "Id"
-                             SelectedValue="{Binding SelectedEmployee, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              SelectionChanged="Departments_comboBox_SelectionChanged">
+                             SelectedValuePath = "Id">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Код" Width="40" DisplayMemberBinding="{Binding Code}"/>
@@ -144,7 +139,7 @@
                              HorizontalAlignment="Stretch"   
                              VerticalAlignment="Top"
                              TextWrapping="Wrap"                            
-                             Text="{Binding ElementName = Employees_listView, Path=SelectedItem[2] }"
+                             Text="{Binding ElementName = Employees_listView, Path=SelectedItem[2], Mode=OneWay}"
                              />
                     <TextBlock
                              Margin="20,5,25,0"
@@ -164,7 +159,7 @@
                              HorizontalAlignment="Stretch"   
                              VerticalAlignment="Top"
                              TextWrapping="Wrap"
-                             Text="{Binding ElementName = Employees_listView, Path=SelectedItem[3] }">
+                             Text="{Binding ElementName = Employees_listView, Path=SelectedItem[3], Mode=OneWay }">
                     </TextBox>
                     <TextBlock
                              Margin="20,5,25,0"
@@ -184,7 +179,7 @@
                              HorizontalAlignment="Stretch"   
                              VerticalAlignment="Top"
                              TextWrapping="Wrap"
-                             Text="{Binding ElementName = Employees_listView, Path=SelectedItem[4] }">
+                             Text="{Binding ElementName = Employees_listView, Path=SelectedItem[4], Mode=OneWay }">
                     </TextBox>
                     <Button x:Name="AddEmployee_button"
                              Margin="0,0,10,0"
